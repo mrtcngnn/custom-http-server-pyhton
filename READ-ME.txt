@@ -1,0 +1,37 @@
+MERT CAN GÖNEN
+181101039
+
+Bu READ-ME dosyasına yazılan her şey koddaki satır sıralamasına göre yazılmıştır.
+
+-> fileName ve content global değişkenler olup upload endpoint'i için kullanıldı.
+   fileName, dosya ismini; content ise dosyanın içerisindeki data'yı temsil eder.
+   endpointCheck, POST metodundaki endpointi kontrol etmek için tutuldu. "upload" isminde değilse "404 Not Found" dönüldü.
+   fileCheck ise POST metoduna dosya gelip gelmediğini kontrol ediyor. Endpoint = upload ve dosya yok ise "400 Bad Request dönüldü."
+
+-> init fonksiyonu host ve port set etmek için kullanıldı. 
+
+-> start fonksiyonunda socket oluşturuldu. 
+   Ardından atılan request'ler dinlenmeye başlandı.
+   İlk başta 1024 byte'lık paket verisi alındı. Bu kısım GET, PUT ve DELETE metodları için yeterli.
+   POST metodu için veri boundary okunana kadar alınmaya devam etti. Bu sırada fileName ve content parse edildi.
+   Ardından 72.satırda bulunan kod satırıyla birlikte her request kendi handle metoduna gönderildi.
+   Son olarak response dönülüp connection kapatıldı.
+
+-> HTTPServer class'ında header'ında Server olarak TCPServer değeri verildi. Header'larda döndürüldü.
+   statuc_codes kısmında da her durum için bir kod ve mesaj oluşturuldu.
+   response line HTTP/1.1 + statuc_code + status_reason olarak byte veri tipinde hazırlandı.
+   response headers kısmında header byte veri tipinde dönüldü.
+
+-> handle-GET metodunda alınan request'in endpoint durumu incelendi. Buna göre parametre isimler ve bu parametrelere ait bilgiler kontrol edilip gerekli response'lar atıldı.
+
+-> handle-POST metodunda alınan request'in endpoint durumu incelendi. Dosyanın olmama durumu 62.satırda incelendi. Filename paket içerisinde gelmediyse "400 Bad Request" response'u dönüldü.
+
+-> handle-PUT metodunda alınan request'in endpoint durumu incelendi. Dosyaların parametre isimleri ve değerlerine göre response'lar dönüldü.
+
+-> handle-DELETE metodunda alınan request'in endpoint durumu incelendi. Dosya var ise silindi, yok ise gerekli mesaj json olarak döndürüldü.
+
+-> HTTPRequest class'ında ise gelen request'in parse işlemleri gerçekleştirildi.
+
+NOT => Endpoint'lerin hatalı olduğu her duruma "404 Not Found" response'u dönüldü.
+       Parametreler ve isimleri ile alakalı olan durumlarda "400 Bad Request" response'u dönüldü.
+       DELETE metodunda silinecek dosyanın olmaması ve PUT metodunda isim değiştirilecek eski dosyanın olmaması durumlarında "200 OK" response'u dönüldü. Gerekli mesajlar json olarak response body'sine eklendi. 
